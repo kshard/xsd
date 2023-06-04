@@ -15,6 +15,8 @@ import (
 
 type Symbol uint32
 
+func (v Symbol) XSDType() Symbol { return XSD_SYMBOL }
+
 var (
 	m        = &sync.Mutex{}
 	symbolID = xsd_USER_DEFINED
@@ -25,6 +27,7 @@ var (
 // Symbol types
 const (
 	XSD_NIL Symbol = iota
+	XSD_SYMBOL
 	XSD_ANYURI
 	XSD_STRING
 	xsd_USER_DEFINED
