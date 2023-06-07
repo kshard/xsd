@@ -35,19 +35,6 @@ type AnyURI Symbol
 
 func (v AnyURI) XSDType() XSDType { return XSD_ANYURI }
 
-// func (v AnyURI) String() string   { return Symbol(v).String() }
-
-// func (v AnyURI) MarshalBinary() ([]byte, error) {
-// 	s := Symbol(v).String()
-// 	return []byte(s), nil
-// }
-
-// func (v *AnyURI) UnmarshalBinary(data []byte) error {
-// 	s := ToSymbol(string(data))
-// 	*v = AnyURI(s)
-// 	return nil
-// }
-
 // The string data-type represents character strings in knowledge statements.
 // The language strings are annotated with corresponding language tag.
 type String string
