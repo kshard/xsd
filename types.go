@@ -10,38 +10,50 @@ package xsd
 
 import (
 	"strconv"
-
-	"github.com/fogfish/curie"
 )
 
-type Value interface{ XSDType() Symbol }
+type Value interface{ XSDType() XSDType }
+
+type XSDType int
+
+// Symbol types
+const (
+	XSD_NIL XSDType = iota
+	XSD_SYMBOL
+	XSD_ANYURI
+	XSD_STRING
+)
+
+// The data type is symbol
+type Symbol uint32
+
+func (v Symbol) XSDType() XSDType { return XSD_SYMBOL }
 
 // The data type represents Internationalized Resource Identifier.
 // Used to uniquely identify concept, objects, etc.
 type AnyURI Symbol
 
-func (v AnyURI) XSDType() Symbol { return XSD_ANYURI }
-func (v AnyURI) String() string  { return Symbol(v).String() }
+func (v AnyURI) XSDType() XSDType { return XSD_ANYURI }
 
-func (v AnyURI) MarshalBinary() ([]byte, error) {
-	s := Symbol(v).String()
-	return []byte(s), nil
-}
+// func (v AnyURI) String() string   { return Symbol(v).String() }
 
-func (v *AnyURI) UnmarshalBinary(data []byte) error {
-	s := ToSymbol(string(data))
-	*v = AnyURI(s)
-	return nil
-}
+// func (v AnyURI) MarshalBinary() ([]byte, error) {
+// 	s := Symbol(v).String()
+// 	return []byte(s), nil
+// }
 
-func ToAnyURI(iri curie.IRI) AnyURI { return AnyURI(ToSymbol(string(iri))) }
+// func (v *AnyURI) UnmarshalBinary(data []byte) error {
+// 	s := ToSymbol(string(data))
+// 	*v = AnyURI(s)
+// 	return nil
+// }
 
 // The string data-type represents character strings in knowledge statements.
 // The language strings are annotated with corresponding language tag.
 type String string
 
-func (v String) XSDType() Symbol { return XSD_STRING }
-func (v String) String() string  { return strconv.Quote(string(v)) }
+func (v String) XSDType() XSDType { return XSD_STRING }
+func (v String) String() string   { return strconv.Quote(string(v)) }
 
 // The Integer data-type in knowledge statement.
 // The library uses various int precision data-types to represent decimal values.

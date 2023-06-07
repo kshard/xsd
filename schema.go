@@ -44,20 +44,27 @@ type Boolean = bool
 type HexBinary = []byte
 type Base64Binary = []byte
 
-// From builds Object from Golang type
-func From[T DataType](value T) Value {
+// From builds xsd.Value from Golang type(s)
+func From[T DataType](
+	symbols interface {
+		SymbolOf(s string) (Symbol, error)
+	},
+	value T,
+) (Value, error) {
 	switch v := any(value).(type) {
 	case curie.IRI:
-		return AnyURI(ToSymbol(string(v)))
+		s, err := symbols.SymbolOf(string(v))
+		if err != nil {
+			return nil, err
+		}
+		return AnyURI(s), nil
 	case AnyURI:
-		return v
+		return v, nil
 	case string:
-		return String(v)
+		return String(v), nil
 	case String:
-		return v
-	// case int:
-	// 	return Integer{Value: v}
+		return v, nil
 	default:
-		panic(fmt.Errorf("package xsd does not support %T", value))
+		return nil, fmt.Errorf("package xsd does not support %T", value)
 	}
 }
