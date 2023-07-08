@@ -15,28 +15,28 @@ import (
 	"github.com/kshard/xsd"
 )
 
-type Map struct {
+// Abstract notion of xsd.Symbol map
+type Map interface {
+	SymbolOf(string) (xsd.Symbol, error)
+	ValueOf(s xsd.Symbol) string
+}
+
+type symbolMap struct {
 	rw      sync.RWMutex
 	hash    Hash
-	symbols map[uint32]string
+	symbols hashmap
 }
 
-func New() *Map {
-	m := &Map{symbols: make(map[uint32]string)}
-	m.hash = NewHash(m)
-	return m
+// Create instance of in-memory symbols table
+func New() Map {
+	m := hashmap{}
+	f := NewHash(m)
+
+	return &symbolMap{hash: f, symbols: m}
 }
 
-func (m *Map) Get(key uint32) (string, error) {
-	val, has := m.symbols[key]
-
-	if !has {
-		return "", nil
-	}
-	return val, nil
-}
-
-func (m *Map) SymbolOf(s string) (xsd.Symbol, error) {
+// Cast string to xsd.Symbol
+func (m *symbolMap) SymbolOf(s string) (xsd.Symbol, error) {
 	m.rw.Lock()
 	defer m.rw.Unlock()
 
@@ -50,7 +50,8 @@ func (m *Map) SymbolOf(s string) (xsd.Symbol, error) {
 	return xsd.Symbol(hash), nil
 }
 
-func (m *Map) ValueOf(s xsd.Symbol) string {
+// Cast xsd.Symbol to string
+func (m *symbolMap) ValueOf(s xsd.Symbol) string {
 	m.rw.RLock()
 	defer m.rw.RUnlock()
 
@@ -60,4 +61,17 @@ func (m *Map) ValueOf(s xsd.Symbol) string {
 	}
 
 	return val
+}
+
+// ---------------------------------------------------------------
+
+type hashmap map[uint32]string
+
+func (m hashmap) Get(key uint32) (string, error) {
+	val, has := m[key]
+
+	if !has {
+		return "", nil
+	}
+	return val, nil
 }

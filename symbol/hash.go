@@ -13,20 +13,21 @@ import (
 	"fmt"
 	"hash"
 	"hash/fnv"
-	"strconv"
 )
 
 const maxLoop = 10
 
-type Getter interface {
-	Get(uint32) (string, error)
-}
+// Getter interface abstract hash-table required to achieve probing
+type Getter interface{ Get(uint32) (string, error) }
 
+// The hash function is collision resistent double hashing
+// https://en.wikipedia.org/wiki/Double_hashing
 type Hash struct {
 	hash   hash.Hash64
 	getter Getter
 }
 
+// Creates new instance of hash function
 func NewHash(getter Getter) Hash {
 	return Hash{
 		getter: getter,
@@ -34,6 +35,7 @@ func NewHash(getter Getter) Hash {
 	}
 }
 
+// Hashes string returning either value or error
 func (h Hash) String(s string) (uint32, error) {
 	h.hash.Reset()
 	h.hash.Write([]byte(s))
@@ -54,10 +56,7 @@ func (h Hash) String(s string) (uint32, error) {
 			return lo, nil
 		}
 
-		h.hash.Write([]byte(strconv.Itoa(int(hash))))
-		hash = hash ^ h.hash.Sum64()
 		lo = ((lo << 16) | (lo >> 16)) ^ hi
-		hi = uint32(hash >> 32)
 	}
 
 	return 0, fmt.Errorf("hash collision of value: %s", s)
