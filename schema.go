@@ -53,6 +53,10 @@ func From[T DataType](
 ) (Value, error) {
 	switch v := any(value).(type) {
 	case curie.IRI:
+		if symbols == nil {
+			return nil, fmt.Errorf("undefined symbols table")
+		}
+
 		s, err := symbols.SymbolOf(string(v))
 		if err != nil {
 			return nil, err

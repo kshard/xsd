@@ -16,7 +16,7 @@ type Value interface{ XSDType() XSDType }
 
 type XSDType int
 
-// Symbol types
+// XSD Types codes
 const (
 	XSD_NIL XSDType = iota
 	XSD_SYMBOL
